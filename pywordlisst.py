@@ -28,6 +28,30 @@ def compute_statistics():
 
     messagebox.showinfo("Statistics", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size} bytes")
 
+def preview_wordlist():
+    min_length = int(min_length_entry.get())
+    max_length = int(max_length_entry.get())
+    custom_words = custom_words_entry.get().replace(',', ' ').split()
+    custom_special_characters = custom_special_chars_entry.get()
+    characters = "abcdefghijklmnopqrstuvwxyz"
+
+    if cap_check_var.get():
+        characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if special_check_var.get():
+        characters += "!@#$%^&*()_+-/.,<`~>:""|}{"
+        characters += custom_special_characters
+    if digits_check_var.get():
+        characters += "0123456789"
+
+    total_combinations = sum(len(characters) ** i for i in range(min_length, max_length + 1))
+    total_words = total_combinations + len(custom_words) * 3  # Consider all possible combinations and custom words
+
+    # Estimate file size (assuming average word length of 8 characters and newline character)
+    avg_word_length = 8
+    estimated_file_size = total_words * (avg_word_length + 1)
+
+    messagebox.showinfo("Preview", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size} bytes")
+
 def generate_wordlist_from_gui():
     custom_words = custom_words_entry.get().replace(',', ' ').split()
     custom_special_characters = custom_special_chars_entry.get()
@@ -127,6 +151,7 @@ def browse_file():
 root = tk.Tk()
 root.title("Wordlist Generator")
 root.geometry("500x450")  # Set initial size of the window
+root.configure(bg="light grey")  # Set background color to light grey
 
 # Configure rows and columns to expand
 for i in range(13):  # Assuming 13 rows
@@ -135,30 +160,30 @@ for i in range(3):  # Assuming 3 columns
     root.grid_columnconfigure(i, weight=1)
 
 # Custom Words
-custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):")
+custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):", bg="light grey")
 custom_words_label.grid(row=0, column=0, sticky="w")
 custom_words_entry = tk.Text(root, height=4, width=50)
 custom_words_entry.grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Custom Special Characters
-custom_special_chars_label = tk.Label(root, text="Custom Special Characters:")
+custom_special_chars_label = tk.Label(root, text="Custom Special Characters:", bg="light grey")
 custom_special_chars_label.grid(row=1, column=0, sticky="w")
 custom_special_chars_entry = tk.Entry(root)
 custom_special_chars_entry.grid(row=1, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Character Set
-char_set_label = tk.Label(root, text="Character Set:")
+char_set_label = tk.Label(root, text="Character Set:", bg="light grey")
 char_set_label.grid(row=2, column=0, sticky="w")
 
 # Minimum Length
-min_length_label = tk.Label(root, text="Min Length:")
+min_length_label = tk.Label(root, text="Min Length:", bg="light grey")
 min_length_label.grid(row=3, column=0, sticky="w")
 min_length_entry = tk.Entry(root)
 min_length_entry.grid(row=3, column=1, sticky="we", padx=5, pady=5)
 min_length_entry.insert(0, "6")
 
 # Maximum Length
-max_length_label = tk.Label(root, text="Max Length:")
+max_length_label = tk.Label(root, text="Max Length:", bg="light grey")
 max_length_label.grid(row=4, column=0, sticky="w")
 max_length_entry = tk.Entry(root)
 max_length_entry.grid(row=4, column=1, sticky="we", padx=5, pady=5)
@@ -166,24 +191,24 @@ max_length_entry.insert(0, "8")
 
 # Capital Letters Checkbox
 cap_check_var = tk.BooleanVar()
-cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var)
+cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var, bg="light grey")
 cap_check.grid(row=5, column=0, columnspan=3, sticky="w")
 cap_check.config(foreground="black")  # Set color of the tick to black
 
 # Special Characters Checkbox
 special_check_var = tk.BooleanVar()
-special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var)
+special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var, bg="light grey")
 special_check.grid(row=6, column=0, columnspan=3, sticky="w")
 special_check.config(foreground="black")  # Set color of the tick to black
 
 # Digits Checkbox
 digits_check_var = tk.BooleanVar()
-digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var)
+digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var, bg="light grey")
 digits_check.grid(row=7, column=0, columnspan=3, sticky="w")
 digits_check.config(foreground="black")  # Set color of the tick to black
 
 # Format choice
-format_choice_label = tk.Label(root, text="Choose format:")
+format_choice_label = tk.Label(root, text="Choose format:", bg="light grey")
 format_choice_label.grid(row=8, column=0, sticky="w")
 format_choice_var = tk.StringVar(root)
 format_choice_var.set(".txt")  # default value
@@ -191,7 +216,7 @@ format_choice_menu = tk.OptionMenu(root, format_choice_var, ".txt", ".docx", ".c
 format_choice_menu.grid(row=8, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Filename
-filename_label = tk.Label(root, text="Filename:")
+filename_label = tk.Label(root, text="Filename:", bg="light grey")
 filename_label.grid(row=9, column=0, sticky="w")
 filename_entry = tk.Entry(root)
 filename_entry.grid(row=9, column=1, sticky="we", padx=5, pady=5)
@@ -205,17 +230,21 @@ browse_button.grid(row=9, column=2, sticky="e", padx=5, pady=5)
 generate_button = tk.Button(root, text="Generate", command=generate_wordlist_from_gui)
 generate_button.grid(row=10, column=1, columnspan=2, sticky="we", pady=5)
 
+# Preview Button
+preview_button = tk.Button(root, text="Preview", command=preview_wordlist)
+preview_button.grid(row=10, column=0, sticky="w", pady=5)
+
 # Statistics Button
 statistics_button = tk.Button(root, text="Statistics", command=compute_statistics)
-statistics_button.grid(row=10, column=0, sticky="w", pady=5)
+statistics_button.grid(row=11, column=0, sticky="w", pady=5)
 
 # Progress Bar
 progress_var = tk.DoubleVar()
 progress_bar = Progressbar(root, variable=progress_var, maximum=100)
-progress_bar.grid(row=11, column=0, columnspan=3, sticky="we", padx=5, pady=5)
+progress_bar.grid(row=12, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
 # Word Count Label
-word_count_label = tk.Label(root, text="Words Generated: 0")
-word_count_label.grid(row=12, column=0, columnspan=3, sticky="we", padx=5, pady=5)
+word_count_label = tk.Label(root, text="Words Generated: 0", bg="light grey")
+word_count_label.grid(row=13, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
 root.mainloop()
