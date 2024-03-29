@@ -184,7 +184,7 @@ root.title("Wordlist Generator")
 # Custom Words
 custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):")
 custom_words_label.grid(row=0, column=0, sticky="w")
-custom_words_entry = tk.Text(root, height=4, width=50)
+custom_words_entry = tk.Entry(root)
 custom_words_entry.grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Custom Special Characters
