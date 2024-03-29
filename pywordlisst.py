@@ -24,26 +24,31 @@ def compute_statistics():
         messagebox.showerror("Error", "Maximum length cannot exceed 14 characters.")
         return
 
-    custom_words = custom_words_entry.get().replace(',', ' ').split()
+    custom_words_text = custom_words_entry.get("1.0", tk.END).strip()
+    custom_words = [word.strip() for word in custom_words_text.split(',') if word.strip()]
+
     custom_special_characters = custom_special_chars_entry.get()
-    characters = "abcdefghijklmnopqrstuvwxyz"
 
     if cap_check_var.get():
-        characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    else:
+        characters = "abcdefghijklmnopqrstuvwxyz"
+
+    if digits_check_var.get():
+        characters += "0123456789"
+
     if special_check_var.get():
         characters += "!@#$%^&*()_+-/.,<`~>:""|}{"
         characters += custom_special_characters
-    if digits_check_var.get():
-        characters += "0123456789"
 
     total_combinations = sum(len(characters) ** i for i in range(min_length, max_length + 1))
     total_words = total_combinations + len(custom_words) * 3  # Consider all possible combinations and custom words
 
     # Estimate file size (assuming average word length of 8 characters and newline character)
     avg_word_length = 8
-    estimated_file_size = total_words * (avg_word_length + 1)
+    estimated_file_size_mb = (total_words * (avg_word_length + 1)) / (1024 * 1024)
 
-    messagebox.showinfo("Statistics", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size} bytes")
+    messagebox.showinfo("Statistics", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size_mb:.2f} MB")
 
 def preview_wordlist():
     try:
@@ -65,26 +70,31 @@ def preview_wordlist():
         messagebox.showerror("Error", "Maximum length cannot exceed 14 characters.")
         return
 
-    custom_words = custom_words_entry.get().replace(',', ' ').split()
+    custom_words_text = custom_words_entry.get("1.0", tk.END).strip()
+    custom_words = [word.strip() for word in custom_words_text.split(',') if word.strip()]
+
     custom_special_characters = custom_special_chars_entry.get()
-    characters = "abcdefghijklmnopqrstuvwxyz"
 
     if cap_check_var.get():
-        characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    else:
+        characters = "abcdefghijklmnopqrstuvwxyz"
+
+    if digits_check_var.get():
+        characters += "0123456789"
+
     if special_check_var.get():
         characters += "!@#$%^&*()_+-/.,<`~>:""|}{"
         characters += custom_special_characters
-    if digits_check_var.get():
-        characters += "0123456789"
 
     total_combinations = sum(len(characters) ** i for i in range(min_length, max_length + 1))
     total_words = total_combinations + len(custom_words) * 3  # Consider all possible combinations and custom words
 
     # Estimate file size (assuming average word length of 8 characters and newline character)
     avg_word_length = 8
-    estimated_file_size = total_words * (avg_word_length + 1)
+    estimated_file_size_mb = (total_words * (avg_word_length + 1)) / (1024 * 1024)
 
-    messagebox.showinfo("Preview", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size} bytes")
+    messagebox.showinfo("Preview", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size_mb:.2f} MB")
 
 def generate_wordlist_from_gui():
     try:
@@ -111,17 +121,22 @@ def generate_wordlist_from_gui():
         messagebox.showerror("Error", "Filename cannot be empty.")
         return
 
-    custom_words = custom_words_entry.get().replace(',', ' ').split()
+    custom_words_text = custom_words_entry.get("1.0", tk.END).strip()
+    custom_words = [word.strip() for word in custom_words_text.split(',') if word.strip()]
+
     custom_special_characters = custom_special_chars_entry.get()
-    characters = "abcdefghijklmnopqrstuvwxyz"
 
     if cap_check_var.get():
-        characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    else:
+        characters = "abcdefghijklmnopqrstuvwxyz"
+
+    if digits_check_var.get():
+        characters += "0123456789"
+
     if special_check_var.get():
         characters += "!@#$%^&*()_+-/.,<`~>:""|}{"
         characters += custom_special_characters
-    if digits_check_var.get():
-        characters += "0123456789"
 
     # Open the file
     try:
@@ -180,32 +195,33 @@ def browse_file():
 # Create GUI
 root = tk.Tk()
 root.title("Wordlist Generator")
+root.configure(bg="#f0f0f0")
 
 # Custom Words
-custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):")
+custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):", bg="#f0f0f0")
 custom_words_label.grid(row=0, column=0, sticky="w")
-custom_words_entry = tk.Entry(root)
+custom_words_entry = tk.Text(root, height=5, width=30)
 custom_words_entry.grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Custom Special Characters
-custom_special_chars_label = tk.Label(root, text="Custom Special Characters:")
+custom_special_chars_label = tk.Label(root, text="Custom Special Characters:", bg="#f0f0f0")
 custom_special_chars_label.grid(row=1, column=0, sticky="w")
 custom_special_chars_entry = tk.Entry(root)
 custom_special_chars_entry.grid(row=1, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Character Set
-char_set_label = tk.Label(root, text="Character Set:")
+char_set_label = tk.Label(root, text="Character Set:", bg="#f0f0f0")
 char_set_label.grid(row=2, column=0, sticky="w")
 
 # Minimum Length
-min_length_label = tk.Label(root, text="Min Length:")
+min_length_label = tk.Label(root, text="Min Length:", bg="#f0f0f0")
 min_length_label.grid(row=3, column=0, sticky="w")
 min_length_entry = tk.Entry(root)
 min_length_entry.grid(row=3, column=1, sticky="we", padx=5, pady=5)
 min_length_entry.insert(0, "6")
 
 # Maximum Length
-max_length_label = tk.Label(root, text="Max Length:")
+max_length_label = tk.Label(root, text="Max Length:", bg="#f0f0f0")
 max_length_label.grid(row=4, column=0, sticky="w")
 max_length_entry = tk.Entry(root)
 max_length_entry.grid(row=4, column=1, sticky="we", padx=5, pady=5)
@@ -213,21 +229,21 @@ max_length_entry.insert(0, "8")
 
 # Capital Letters Checkbox
 cap_check_var = tk.BooleanVar()
-cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var)
+cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var, bg="#f0f0f0")
 cap_check.grid(row=5, column=0, columnspan=3, sticky="w")
 
 # Special Characters Checkbox
 special_check_var = tk.BooleanVar()
-special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var)
+special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var, bg="#f0f0f0")
 special_check.grid(row=6, column=0, columnspan=3, sticky="w")
 
 # Digits Checkbox
 digits_check_var = tk.BooleanVar()
-digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var)
+digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var, bg="#f0f0f0")
 digits_check.grid(row=7, column=0, columnspan=3, sticky="w")
 
 # Format choice
-format_choice_label = tk.Label(root, text="Choose format:")
+format_choice_label = tk.Label(root, text="Choose format:", bg="#f0f0f0")
 format_choice_label.grid(row=8, column=0, sticky="w")
 format_choice_var = tk.StringVar(root)
 format_choice_var.set(".txt")  # default value
@@ -235,7 +251,7 @@ format_choice_menu = tk.OptionMenu(root, format_choice_var, ".txt", ".docx", ".c
 format_choice_menu.grid(row=8, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Filename
-filename_label = tk.Label(root, text="Filename:")
+filename_label = tk.Label(root, text="Filename:", bg="#f0f0f0")
 filename_label.grid(row=9, column=0, sticky="w")
 filename_entry = tk.Entry(root)
 filename_entry.grid(row=9, column=1, sticky="we", padx=5, pady=5)
@@ -263,7 +279,7 @@ progress_bar = Progressbar(root, variable=progress_var, maximum=100)
 progress_bar.grid(row=12, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
 # Word Count Label
-word_count_label = tk.Label(root, text="Words Generated: 0")
+word_count_label = tk.Label(root, text="Words Generated: 0", bg="#f0f0f0")
 word_count_label.grid(row=13, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
 root.mainloop()
