@@ -5,8 +5,25 @@ from tkinter import filedialog, messagebox
 from tkinter.ttk import Progressbar
 
 def compute_statistics():
-    min_length = int(min_length_entry.get())
-    max_length = int(max_length_entry.get())
+    try:
+        min_length = int(min_length_entry.get())
+        max_length = int(max_length_entry.get())
+    except ValueError:
+        messagebox.showerror("Error", "Minimum and maximum lengths must be integers.")
+        return
+
+    if min_length <= 0 or max_length <= 0:
+        messagebox.showerror("Error", "Minimum and maximum lengths must be positive integers.")
+        return
+
+    if min_length > max_length:
+        messagebox.showerror("Error", "Minimum length cannot be greater than maximum length.")
+        return
+
+    if max_length > 14:
+        messagebox.showerror("Error", "Maximum length cannot exceed 14 characters.")
+        return
+
     custom_words = custom_words_entry.get().replace(',', ' ').split()
     custom_special_characters = custom_special_chars_entry.get()
     characters = "abcdefghijklmnopqrstuvwxyz"
@@ -29,8 +46,25 @@ def compute_statistics():
     messagebox.showinfo("Statistics", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size} bytes")
 
 def preview_wordlist():
-    min_length = int(min_length_entry.get())
-    max_length = int(max_length_entry.get())
+    try:
+        min_length = int(min_length_entry.get())
+        max_length = int(max_length_entry.get())
+    except ValueError:
+        messagebox.showerror("Error", "Minimum and maximum lengths must be integers.")
+        return
+
+    if min_length <= 0 or max_length <= 0:
+        messagebox.showerror("Error", "Minimum and maximum lengths must be positive integers.")
+        return
+
+    if min_length > max_length:
+        messagebox.showerror("Error", "Minimum length cannot be greater than maximum length.")
+        return
+
+    if max_length > 14:
+        messagebox.showerror("Error", "Maximum length cannot exceed 14 characters.")
+        return
+
     custom_words = custom_words_entry.get().replace(',', ' ').split()
     custom_special_characters = custom_special_chars_entry.get()
     characters = "abcdefghijklmnopqrstuvwxyz"
@@ -53,26 +87,9 @@ def preview_wordlist():
     messagebox.showinfo("Preview", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size} bytes")
 
 def generate_wordlist_from_gui():
-    custom_words = custom_words_entry.get().replace(',', ' ').split()
-    custom_special_characters = custom_special_chars_entry.get()
-    characters = "abcdefghijklmnopqrstuvwxyz"
-
-    if cap_check_var.get():
-        characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    if special_check_var.get():
-        characters += "!@#$%^&*()_+-/.,<`~>:""|}{"
-        characters += custom_special_characters
-    if digits_check_var.get():
-        characters += "0123456789"
-
-    min_length_str = min_length_entry.get()
-    max_length_str = max_length_entry.get()
-    filename = filename_entry.get()
-    file_format = format_choice_var.get()
-
     try:
-        min_length = int(min_length_str)
-        max_length = int(max_length_str)
+        min_length = int(min_length_entry.get())
+        max_length = int(max_length_entry.get())
     except ValueError:
         messagebox.showerror("Error", "Minimum and maximum lengths must be integers.")
         return
@@ -89,13 +106,26 @@ def generate_wordlist_from_gui():
         messagebox.showerror("Error", "Maximum length cannot exceed 14 characters.")
         return
 
+    filename = filename_entry.get()
     if not filename:
         messagebox.showerror("Error", "Filename cannot be empty.")
         return
 
+    custom_words = custom_words_entry.get().replace(',', ' ').split()
+    custom_special_characters = custom_special_chars_entry.get()
+    characters = "abcdefghijklmnopqrstuvwxyz"
+
+    if cap_check_var.get():
+        characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if special_check_var.get():
+        characters += "!@#$%^&*()_+-/.,<`~>:""|}{"
+        characters += custom_special_characters
+    if digits_check_var.get():
+        characters += "0123456789"
+
     # Open the file
     try:
-        with open(filename + "." + file_format, 'w') as file:
+        with open(f"{filename}.{format_choice_var.get()}", 'w') as file:
             # Generate and write the wordlist
             total_combinations = sum(len(characters) ** i for i in range(min_length, max_length + 1))
             progress_step = 100 / total_combinations
@@ -132,7 +162,7 @@ def generate_wordlist_from_gui():
                             word_count_label.config(text=f"Words Generated: {word_count}")
                             root.update_idletasks()
 
-        messagebox.showinfo("Wordlist Generator", f"Wordlist generated and saved to {filename}.{file_format}")
+        messagebox.showinfo("Wordlist Generator", f"Wordlist generated and saved to {filename}.{format_choice_var.get()}")
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {str(e)}")
 
@@ -150,40 +180,32 @@ def browse_file():
 # Create GUI
 root = tk.Tk()
 root.title("Wordlist Generator")
-root.geometry("500x450")  # Set initial size of the window
-root.configure(bg="light grey")  # Set background color to light grey
-
-# Configure rows and columns to expand
-for i in range(13):  # Assuming 13 rows
-    root.grid_rowconfigure(i, weight=1)
-for i in range(3):  # Assuming 3 columns
-    root.grid_columnconfigure(i, weight=1)
 
 # Custom Words
-custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):", bg="light grey")
+custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):")
 custom_words_label.grid(row=0, column=0, sticky="w")
 custom_words_entry = tk.Text(root, height=4, width=50)
 custom_words_entry.grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Custom Special Characters
-custom_special_chars_label = tk.Label(root, text="Custom Special Characters:", bg="light grey")
+custom_special_chars_label = tk.Label(root, text="Custom Special Characters:")
 custom_special_chars_label.grid(row=1, column=0, sticky="w")
 custom_special_chars_entry = tk.Entry(root)
 custom_special_chars_entry.grid(row=1, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Character Set
-char_set_label = tk.Label(root, text="Character Set:", bg="light grey")
+char_set_label = tk.Label(root, text="Character Set:")
 char_set_label.grid(row=2, column=0, sticky="w")
 
 # Minimum Length
-min_length_label = tk.Label(root, text="Min Length:", bg="light grey")
+min_length_label = tk.Label(root, text="Min Length:")
 min_length_label.grid(row=3, column=0, sticky="w")
 min_length_entry = tk.Entry(root)
 min_length_entry.grid(row=3, column=1, sticky="we", padx=5, pady=5)
 min_length_entry.insert(0, "6")
 
 # Maximum Length
-max_length_label = tk.Label(root, text="Max Length:", bg="light grey")
+max_length_label = tk.Label(root, text="Max Length:")
 max_length_label.grid(row=4, column=0, sticky="w")
 max_length_entry = tk.Entry(root)
 max_length_entry.grid(row=4, column=1, sticky="we", padx=5, pady=5)
@@ -191,24 +213,21 @@ max_length_entry.insert(0, "8")
 
 # Capital Letters Checkbox
 cap_check_var = tk.BooleanVar()
-cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var, bg="light grey")
+cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var)
 cap_check.grid(row=5, column=0, columnspan=3, sticky="w")
-cap_check.config(foreground="black")  # Set color of the tick to black
 
 # Special Characters Checkbox
 special_check_var = tk.BooleanVar()
-special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var, bg="light grey")
+special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var)
 special_check.grid(row=6, column=0, columnspan=3, sticky="w")
-special_check.config(foreground="black")  # Set color of the tick to black
 
 # Digits Checkbox
 digits_check_var = tk.BooleanVar()
-digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var, bg="light grey")
+digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var)
 digits_check.grid(row=7, column=0, columnspan=3, sticky="w")
-digits_check.config(foreground="black")  # Set color of the tick to black
 
 # Format choice
-format_choice_label = tk.Label(root, text="Choose format:", bg="light grey")
+format_choice_label = tk.Label(root, text="Choose format:")
 format_choice_label.grid(row=8, column=0, sticky="w")
 format_choice_var = tk.StringVar(root)
 format_choice_var.set(".txt")  # default value
@@ -216,7 +235,7 @@ format_choice_menu = tk.OptionMenu(root, format_choice_var, ".txt", ".docx", ".c
 format_choice_menu.grid(row=8, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Filename
-filename_label = tk.Label(root, text="Filename:", bg="light grey")
+filename_label = tk.Label(root, text="Filename:")
 filename_label.grid(row=9, column=0, sticky="w")
 filename_entry = tk.Entry(root)
 filename_entry.grid(row=9, column=1, sticky="we", padx=5, pady=5)
@@ -244,7 +263,7 @@ progress_bar = Progressbar(root, variable=progress_var, maximum=100)
 progress_bar.grid(row=12, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
 # Word Count Label
-word_count_label = tk.Label(root, text="Words Generated: 0", bg="light grey")
+word_count_label = tk.Label(root, text="Words Generated: 0")
 word_count_label.grid(row=13, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
 root.mainloop()
