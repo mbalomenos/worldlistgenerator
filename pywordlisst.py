@@ -80,18 +80,25 @@ def browse_file():
 # Create GUI
 root = tk.Tk()
 root.title("Wordlist Generator")
+root.geometry("500x400")  # Set initial size of the window
+
+# Configure rows and columns to expand
+for i in range(11):  # Assuming 11 rows
+    root.grid_rowconfigure(i, weight=1)
+for i in range(3):  # Assuming 3 columns
+    root.grid_columnconfigure(i, weight=1)
 
 # Custom Words
 custom_words_label = tk.Label(root, text="Custom Words (separate by spaces):")
 custom_words_label.grid(row=0, column=0, sticky="w")
 custom_words_entry = tk.Entry(root)
-custom_words_entry.grid(row=0, column=1, columnspan=2, padx=5, pady=5)
+custom_words_entry.grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Custom Special Characters
 custom_special_chars_label = tk.Label(root, text="Custom Special Characters:")
 custom_special_chars_label.grid(row=1, column=0, sticky="w")
 custom_special_chars_entry = tk.Entry(root)
-custom_special_chars_entry.grid(row=1, column=1, columnspan=2, padx=5, pady=5)
+custom_special_chars_entry.grid(row=1, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Character Set
 char_set_label = tk.Label(root, text="Character Set:")
@@ -101,30 +108,30 @@ char_set_label.grid(row=2, column=0, sticky="w")
 min_length_label = tk.Label(root, text="Min Length:")
 min_length_label.grid(row=3, column=0, sticky="w")
 min_length_entry = tk.Entry(root)
-min_length_entry.grid(row=3, column=1, padx=5, pady=5)
+min_length_entry.grid(row=3, column=1, sticky="we", padx=5, pady=5)
 min_length_entry.insert(0, "6")
 
 # Maximum Length
 max_length_label = tk.Label(root, text="Max Length:")
 max_length_label.grid(row=4, column=0, sticky="w")
 max_length_entry = tk.Entry(root)
-max_length_entry.grid(row=4, column=1, padx=5, pady=5)
+max_length_entry.grid(row=4, column=1, sticky="we", padx=5, pady=5)
 max_length_entry.insert(0, "8")
 
 # Capital Letters Checkbox
 cap_check_var = tk.BooleanVar()
 cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var)
-cap_check.grid(row=5, column=0, columnspan=2, sticky="w")
+cap_check.grid(row=5, column=0, columnspan=3, sticky="w")
 
 # Special Characters Checkbox
 special_check_var = tk.BooleanVar()
 special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var)
-special_check.grid(row=6, column=0, columnspan=2, sticky="w")
+special_check.grid(row=6, column=0, columnspan=3, sticky="w")
 
 # Digits Checkbox
 digits_check_var = tk.BooleanVar()
 digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var)
-digits_check.grid(row=7, column=0, columnspan=2, sticky="w")
+digits_check.grid(row=7, column=0, columnspan=3, sticky="w")
 
 # Format choice
 format_choice_label = tk.Label(root, text="Choose format:")
@@ -132,21 +139,21 @@ format_choice_label.grid(row=8, column=0, sticky="w")
 format_choice_var = tk.StringVar(root)
 format_choice_var.set(".txt")  # default value
 format_choice_menu = tk.OptionMenu(root, format_choice_var, ".txt", ".docx", ".csv", ".xlsx", ".zip")
-format_choice_menu.grid(row=8, column=1, sticky="w")
+format_choice_menu.grid(row=8, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Filename
 filename_label = tk.Label(root, text="Filename:")
 filename_label.grid(row=9, column=0, sticky="w")
 filename_entry = tk.Entry(root)
-filename_entry.grid(row=9, column=1, padx=5, pady=5)
+filename_entry.grid(row=9, column=1, sticky="we", padx=5, pady=5)
 filename_entry.insert(0, "wordlist")
 
 # Browse Button
 browse_button = tk.Button(root, text="Browse", command=browse_file)
-browse_button.grid(row=9, column=2, padx=5, pady=5)
+browse_button.grid(row=9, column=2, sticky="e", padx=5, pady=5)
 
 # Generate Button
 generate_button = tk.Button(root, text="Generate", command=generate_wordlist_from_gui)
-generate_button.grid(row=10, column=1, pady=10)
+generate_button.grid(row=10, column=1, columnspan=2, sticky="we", pady=10)
 
 root.mainloop()
