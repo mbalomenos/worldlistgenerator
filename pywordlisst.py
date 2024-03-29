@@ -1,24 +1,35 @@
 import itertools
+import random
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from tkinter.ttk import Progressbar
 
-def generate_wordlist(characters, min_length, max_length):
-    wordlist = set()
-    for length in range(min_length, max_length + 1):
-        for combination in itertools.product(characters, repeat=length):
-            wordlist.add(''.join(combination))
-    return wordlist
+def compute_statistics():
+    min_length = int(min_length_entry.get())
+    max_length = int(max_length_entry.get())
+    custom_words = custom_words_entry.get().replace(',', ' ').split()
+    custom_special_characters = custom_special_chars_entry.get()
+    characters = "abcdefghijklmnopqrstuvwxyz"
 
-def save_wordlist(wordlist, filename, file_format):
-    if file_format == "txt":
-        with open(filename + ".txt", 'w') as file:
-            for word in wordlist:
-                file.write(word + '\n')
-    else:
-        messagebox.showinfo("Wordlist Generator", "Selected format is not supported.")
+    if cap_check_var.get():
+        characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if special_check_var.get():
+        characters += "!@#$%^&*()_+-/.,<`~>:""|}{"
+        characters += custom_special_characters
+    if digits_check_var.get():
+        characters += "0123456789"
+
+    total_combinations = sum(len(characters) ** i for i in range(min_length, max_length + 1))
+    total_words = total_combinations + len(custom_words) * 3  # Consider all possible combinations and custom words
+
+    # Estimate file size (assuming average word length of 8 characters and newline character)
+    avg_word_length = 8
+    estimated_file_size = total_words * (avg_word_length + 1)
+
+    messagebox.showinfo("Statistics", f"Total Words to be Generated: {total_words}\nEstimated File Size: {estimated_file_size} bytes")
 
 def generate_wordlist_from_gui():
-    custom_words = custom_words_entry.get().split()
+    custom_words = custom_words_entry.get().replace(',', ' ').split()
     custom_special_characters = custom_special_chars_entry.get()
     characters = "abcdefghijklmnopqrstuvwxyz"
 
@@ -58,19 +69,54 @@ def generate_wordlist_from_gui():
         messagebox.showerror("Error", "Filename cannot be empty.")
         return
 
-    with open(filename + ".txt", 'w') as file:
-        for length in range(min_length, max_length + 1):
-            for combination in itertools.product(characters, repeat=length):
-                word = ''.join(combination)
-                file.write(word + '\n')
+    # Open the file
+    try:
+        with open(filename + "." + file_format, 'w') as file:
+            # Generate and write the wordlist
+            total_combinations = sum(len(characters) ** i for i in range(min_length, max_length + 1))
+            progress_step = 100 / total_combinations
+            progress = 0
+            word_count = 0
+            for length in range(min_length, max_length + 1):
+                for combination in itertools.product(characters, repeat=length):
+                    word = ''.join(combination)
+                    if word not in custom_words:
+                        file.write(word + '\n')
+                        word_count += 1
+                        progress += progress_step
+                        progress_var.set(progress)
+                        word_count_label.config(text=f"Words Generated: {word_count}")
+                        root.update_idletasks()
 
-    for word in custom_words:
-        with open(filename + ".txt", 'a') as file:
-            file.write(word + '\n')
-            file.write(word.lower() + '\n')
-            file.write(word.upper() + '\n')
+            # Append custom words
+            for word in custom_words:
+                if min_length <= len(word) <= max_length and word not in custom_words:
+                    file.write(word + '\n')
+                    word_count += 1
+                    progress += progress_step
+                    progress_var.set(progress)
+                    word_count_label.config(text=f"Words Generated: {word_count}")
+                    root.update_idletasks()
 
-    messagebox.showinfo("Wordlist Generator", f"Wordlist generated and saved to {filename}.{file_format}")
+                    # Merge, randomize, and write custom words
+                    for merged_word in merge_and_randomize(word):
+                        if min_length <= len(merged_word) <= max_length:
+                            file.write(merged_word + '\n')
+                            word_count += 1
+                            progress += progress_step
+                            progress_var.set(progress)
+                            word_count_label.config(text=f"Words Generated: {word_count}")
+                            root.update_idletasks()
+
+        messagebox.showinfo("Wordlist Generator", f"Wordlist generated and saved to {filename}.{file_format}")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+def merge_and_randomize(word):
+    merged_words = [word]
+    merged_words.extend(''.join(comb) for comb in itertools.combinations(word, 2))
+    random.shuffle(merged_words)
+    return merged_words
 
 def browse_file():
     filename = filedialog.asksaveasfilename(defaultextension=".txt")
@@ -80,18 +126,18 @@ def browse_file():
 # Create GUI
 root = tk.Tk()
 root.title("Wordlist Generator")
-root.geometry("500x400")  # Set initial size of the window
+root.geometry("500x450")  # Set initial size of the window
 
 # Configure rows and columns to expand
-for i in range(11):  # Assuming 11 rows
+for i in range(13):  # Assuming 13 rows
     root.grid_rowconfigure(i, weight=1)
 for i in range(3):  # Assuming 3 columns
     root.grid_columnconfigure(i, weight=1)
 
 # Custom Words
-custom_words_label = tk.Label(root, text="Custom Words (separate by spaces):")
+custom_words_label = tk.Label(root, text="Custom Words (separate by commas or spaces):")
 custom_words_label.grid(row=0, column=0, sticky="w")
-custom_words_entry = tk.Entry(root)
+custom_words_entry = tk.Text(root, height=4, width=50)
 custom_words_entry.grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
 
 # Custom Special Characters
@@ -122,16 +168,19 @@ max_length_entry.insert(0, "8")
 cap_check_var = tk.BooleanVar()
 cap_check = tk.Checkbutton(root, text="Include Capital Letters", variable=cap_check_var)
 cap_check.grid(row=5, column=0, columnspan=3, sticky="w")
+cap_check.config(foreground="black")  # Set color of the tick to black
 
 # Special Characters Checkbox
 special_check_var = tk.BooleanVar()
 special_check = tk.Checkbutton(root, text="Include Special Characters", variable=special_check_var)
 special_check.grid(row=6, column=0, columnspan=3, sticky="w")
+special_check.config(foreground="black")  # Set color of the tick to black
 
 # Digits Checkbox
 digits_check_var = tk.BooleanVar()
 digits_check = tk.Checkbutton(root, text="Include Digits", variable=digits_check_var)
 digits_check.grid(row=7, column=0, columnspan=3, sticky="w")
+digits_check.config(foreground="black")  # Set color of the tick to black
 
 # Format choice
 format_choice_label = tk.Label(root, text="Choose format:")
@@ -154,6 +203,19 @@ browse_button.grid(row=9, column=2, sticky="e", padx=5, pady=5)
 
 # Generate Button
 generate_button = tk.Button(root, text="Generate", command=generate_wordlist_from_gui)
-generate_button.grid(row=10, column=1, columnspan=2, sticky="we", pady=10)
+generate_button.grid(row=10, column=1, columnspan=2, sticky="we", pady=5)
+
+# Statistics Button
+statistics_button = tk.Button(root, text="Statistics", command=compute_statistics)
+statistics_button.grid(row=10, column=0, sticky="w", pady=5)
+
+# Progress Bar
+progress_var = tk.DoubleVar()
+progress_bar = Progressbar(root, variable=progress_var, maximum=100)
+progress_bar.grid(row=11, column=0, columnspan=3, sticky="we", padx=5, pady=5)
+
+# Word Count Label
+word_count_label = tk.Label(root, text="Words Generated: 0")
+word_count_label.grid(row=12, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
 root.mainloop()
